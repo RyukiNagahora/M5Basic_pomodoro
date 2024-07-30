@@ -6,6 +6,7 @@ unsigned long elapsedMillis;
 bool isRunning = false;
 bool isPaused = false;
 bool isWorkTime = true;
+bool isBuzzerOn = true; // ブザーの初期状態
 int cycleCount = 1; // サイクルを1から始める
 
 const unsigned long workDuration = 25 * 60 * 1000; // 25 minutes in milliseconds
@@ -36,7 +37,7 @@ void setup() {
 
 void loop() {
   M5.update();
-  if (M5.BtnA.wasPressed() || M5.BtnB.wasPressed() || M5.BtnC.wasPressed()) {
+  if (M5.BtnA.wasPressed() || M5.BtnB.wasPressed()) {
     if (isRunning) {
       if (isPaused) {
         isPaused = false;
@@ -52,8 +53,14 @@ void loop() {
       isPaused = false;
       lastIsPaused = false;
       startMillis = millis();
+      if (isBuzzerOn) buzzSingle();
       updateScreen();
     }
+  }
+
+  if (M5.BtnC.wasPressed()) {
+    isBuzzerOn = !isBuzzerOn; // ブザーのオン/オフを切り替え
+    updateScreen();
   }
 
   if (isRunning && !isPaused) {
@@ -64,6 +71,7 @@ void loop() {
       if (elapsedMillis >= workDuration) {
         isRunning = false;
         isWorkTime = false;
+        if (isBuzzerOn) buzzDouble();
         updateScreen();
       } else {
         showTime(workDuration - elapsedMillis, workDuration, true);
@@ -73,6 +81,7 @@ void loop() {
         isRunning = false;
         isWorkTime = true;
         cycleCount++; // サイクルカウントを増やす
+        if (isBuzzerOn) buzzDouble();
         updateScreen();
       } else {
         showTime(breakDuration - elapsedMillis, breakDuration, false);
@@ -196,4 +205,17 @@ void showBatteryStatus() {
   } else {
     sprite.printf("Battery: %d%%", batteryLevel);
   }
+
+  sprite.setCursor(240, 30); // 電池残量の下に表示
+  sprite.printf("Buzzer: %s", isBuzzerOn ? "On" : "Off");
+}
+
+void buzzSingle() {
+  M5.Speaker.tone(1000, 200); // 1KHzの音を200ms鳴らす
+}
+
+void buzzDouble() {
+  M5.Speaker.tone(1000, 200); // 1KHzの音を200ms鳴らす
+  delay(200);
+  M5.Speaker.tone(1000, 200); // 1KHzの音を200ms鳴らす
 }
