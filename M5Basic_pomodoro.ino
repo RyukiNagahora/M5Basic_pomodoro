@@ -26,6 +26,7 @@ TFT_eSprite sprite = TFT_eSprite(&M5.Lcd); // TFT_eSpriteのインスタンス�
 
 void setup() {
   M5.begin();
+  M5.Power.begin(); 
   M5.Lcd.clear();
   M5.Lcd.setRotation(1); // 画面の向きを設定
   sprite.setColorDepth(8); // カラーデプスを設定
@@ -109,6 +110,8 @@ void showTime(unsigned long timeLeft, unsigned long totalDuration, bool isWork) 
     sprite.setCursor(10, 70);
     sprite.printf("Cycle: %d", cycleCount);
 
+    showBatteryStatus();
+
     sprite.pushSprite(0, 0); // スプライトを表示
   }
 }
@@ -130,6 +133,8 @@ void showPausedScreen() {
 
   sprite.setCursor(10, 100);
   sprite.println("Paused");
+
+  showBatteryStatus();
 
   sprite.pushSprite(0, 0); // スプライトを表示
   lastIsPaused = true;
@@ -159,6 +164,8 @@ void showInitialScreen() {
   sprite.setCursor(10, 100);
   sprite.printf("Cycle: %d", cycleCount);
 
+  showBatteryStatus();
+
   sprite.pushSprite(0, 0); // スプライトを表示
 }
 
@@ -173,5 +180,20 @@ void updateScreen() {
     }
   } else {
     showInitialScreen();
+  }
+}
+
+void showBatteryStatus() {
+  int batteryLevel = M5.Power.getBatteryLevel();
+  bool isCharging = M5.Power.isCharging();
+
+  sprite.setTextColor(TFT_WHITE);
+  sprite.setCursor(240, 10); // 画面の右上に表示
+  sprite.setTextSize(1);
+
+  if (isCharging) {
+    sprite.println("Charging");
+  } else {
+    sprite.printf("Battery: %d%%", batteryLevel);
   }
 }
