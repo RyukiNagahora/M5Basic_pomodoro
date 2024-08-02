@@ -37,7 +37,7 @@ void setup() {
 
 void loop() {
   M5.update();
-  if (M5.BtnA.wasPressed() || M5.BtnB.wasPressed()) {
+  if (M5.BtnA.wasPressed()) {
     if (isRunning) {
       if (isPaused) {
         isPaused = false;
@@ -56,6 +56,10 @@ void loop() {
       if (isBuzzerOn) buzzSingle();
       updateScreen();
     }
+  }
+
+  if (M5.BtnB.wasPressed()) {
+    resetTimer();
   }
 
   if (M5.BtnC.wasPressed()) {
@@ -218,4 +222,14 @@ void buzzDouble() {
   M5.Speaker.tone(1000, 200); // 1KHzの音を200ms鳴らす
   delay(200);
   M5.Speaker.tone(1000, 200); // 1KHzの音を200ms鳴らす
+}
+
+void resetTimer() {
+  isRunning = false;
+  isPaused = false;
+  startMillis = 0;
+  pausedMillis = 0;
+  elapsedMillis = 0;
+  isWorkTime = true;
+  showInitialScreen();
 }
